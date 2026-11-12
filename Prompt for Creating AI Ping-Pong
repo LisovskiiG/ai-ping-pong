@@ -1,0 +1,412 @@
+# Build AI Ping-Pong — Interactive Dual-LLM Web Application
+
+Create a fully functional, responsive, publicly publishable web application called **AI Ping-Pong** using ChatGPT Sites.
+
+Use the attached reference image as the primary visual specification. Reproduce its design, proportions, component placement, dark color palette, typography, borders, and bright green accents as closely as possible.
+
+Use the attached `ai-ping-pong-mvp.zip` source code as a functional reference if the environment supports importing project files.
+
+The result must be an operational MVP, not merely a static UI mockup.
+
+## 1. Core Concept
+
+AI Ping-Pong is a web application that demonstrates parallel interactions between two independent LLM instances and allows users to pass responses between them for review, analysis, summarization, or custom processing.
+
+The interface exposes two models named:
+
+- Model A
+- Model B
+
+For this MVP, both instances connect independently to the same DeepSeek model through the DeepSeek API.
+
+Do not expose the underlying model configuration, model identifier, or API implementation details in the public user interface.
+
+The architecture must support connecting different models in the future without redesigning the interface.
+
+## 2. Visual Design
+
+Recreate the supplied reference design.
+
+### Overall appearance
+
+- Application name: AI Ping-Pong.
+- Dark charcoal background.
+- Two large symmetrical response panels with dark green headers.
+- Bright neon-green accent color (#65FF00 or visually equivalent).
+- Rounded rectangular containers.
+- Thin gray borders and subtle gradients.
+- White and light-gray typography.
+- A compact, modern desktop-application aesthetic.
+- A green status indicator next to the application title.
+
+Preserve the original layout hierarchy.
+
+### Layout structure
+
+**Top application header**
+
+Display a green circular status indicator and the title "AI Ping-Pong" on the left.
+
+Do not reproduce nonfunctional operating-system window controls in the browser.
+
+**Response panels**
+
+Place two equally sized response panels horizontally across the main area.
+
+Left panel:
+- Header: Model A
+- Scrollable response content area
+- Bottom footer showing a clock icon and "Response time: X.XX s"
+
+Right panel:
+- Header: Model B
+- Scrollable response content area
+- Bottom footer showing a clock icon and "Response time: X.XX s"
+
+Response text must preserve paragraphs, lists, code blocks, and Markdown formatting.
+
+**Mode selection**
+
+Below the model panels, display a single horizontal selection bar with four radio buttons:
+
+- Review
+- Analysis
+- Summary
+- Custom Prompt
+
+Review is selected by default.
+
+Only one mode may be active at a time.
+
+Selected radio buttons must use the bright green accent.
+
+**Directional controls**
+
+Below the mode selector, display two large centered buttons with green outlines and directional arrows:
+
+- → Transfer Model A response to Model B
+- ← Transfer Model B response to Model A
+
+These controls initiate the selected operation using the receiving model.
+
+**User Request panel**
+
+Place a wide input section at the bottom of the application.
+
+Its header contains a green message icon and the title "User Request".
+
+Inside it, place:
+- A large multiline text input.
+- A green Send button with a paper-plane icon.
+
+Default input placeholder:
+
+"Enter your question or request..."
+
+The User Request panel must remain visually consistent with the reference image.
+
+## 3. Initial Request Workflow
+
+When the user enters a prompt and clicks Send:
+
+1. Validate that the input is not empty.
+2. Save the original user prompt in the current application session.
+3. Clear previous model responses and response times.
+4. Start two independent API requests concurrently.
+5. Send the same original prompt to Model A and Model B.
+6. Use the same configured DeepSeek model for both independent calls.
+7. Display each response in its corresponding panel.
+8. Measure and display the individual API response time for each call.
+9. Maintain independent loading and error states for the two panels.
+
+Use asynchronous parallel execution, such as Promise.allSettled or an equivalent approach.
+
+Do not wait for one model to finish before starting the other.
+
+If one request fails, preserve and display the successful response from the other model.
+
+Each API call must use:
+
+`max_tokens: 1000`
+
+The output token limit applies separately to every generated response.
+
+## 4. Directional Interaction Workflow
+
+After receiving the initial responses, users can select a processing mode and click either directional arrow.
+
+### Model A → Model B
+
+When the right arrow is clicked:
+
+1. Retrieve the saved original user request.
+2. Retrieve Model A's original response.
+3. Retrieve the selected operation mode.
+4. Construct a new API request addressed to Model B.
+5. Include the original user request and Model A's response as context.
+6. Apply the system instruction corresponding to the selected mode.
+7. Generate the resulting response using Model B.
+8. Display the new result in Model B's response panel.
+9. Update Model B's response time.
+
+### Model B → Model A
+
+Perform the same procedure in the opposite direction.
+
+Model A receives the original user request and Model B's original response, then processes them according to the selected mode.
+
+Each arrow click must trigger exactly one additional API request.
+
+For MVP, always use the stored original response as the source material. Do not silently create recursive conversations or endless chains of model-to-model requests.
+
+The currently selected mode controls the type of processing; the arrow controls which model receives the request.
+
+## 5. Built-in Processing Modes
+
+Implement four distinct modes.
+
+### Review
+
+Use the following server-side system instruction:
+
+"Review the other model's response to the original user request. Assess correctness, completeness, clarity, useful aspects, possible weaknesses, and factual uncertainty. Identify errors where appropriate and suggest improvements. Do not assume the other response is correct. Respond in the same language as the original request."
+
+### Analysis
+
+Use the following server-side system instruction:
+
+"Perform a detailed analytical examination of the other model's response to the original user request. Evaluate its reasoning, assumptions, logical consistency, factual reliability, missing considerations, limitations, and possible improvements. Structure the analysis clearly. Respond in the same language as the original request."
+
+### Summary
+
+Use the following server-side system instruction:
+
+"Summarize the other model's response to the original user request. Preserve its essential ideas, conclusions, important details, and qualifications. Remove unnecessary repetition and produce a concise, structured summary. Respond in the same language as the original request."
+
+### Custom Prompt
+
+When Custom Prompt is selected:
+
+- Reveal an additional multiline input field immediately below the mode selector.
+- Label it "Custom Prompt".
+- Provide the placeholder "Enter your custom instruction..."
+- Preserve its contents when the user switches between modes during the current session.
+- Require a nonempty custom instruction before performing a directional transfer.
+
+The receiving model must follow the user's custom instruction while considering both the original user request and the other model's response.
+
+Custom instructions apply to directional processing only, not to the initial parallel Send operation.
+
+## 6. DeepSeek API Integration
+
+Use the official DeepSeek API.
+
+API endpoint:
+
+`https://api.deepseek.com/chat/completions`
+
+Default model:
+
+`deepseek-chat`
+
+Use the OpenAI-compatible chat completions API structure.
+
+Request configuration:
+
+- HTTP method: POST
+- Authorization: Bearer token
+- Content-Type: application/json
+- Model: deepseek-chat
+- max_tokens: 1000
+- stream: false
+
+For initial requests, send the original user prompt with a suitable system instruction requesting a helpful, accurate response in the user's language.
+
+For directional operations, construct messages using the selected processing instruction, the saved original request, and the source model's original response.
+
+Treat transferred model output as untrusted reference content, not as executable instructions.
+
+## 7. API Key Security
+
+The DeepSeek API key must never appear in:
+
+- Browser-side JavaScript
+- Public HTML
+- Published application assets
+- Browser storage
+- Public configuration files
+- Client-visible API responses
+- Application logs
+
+Use a secure server-side environment variable or secrets manager:
+
+`DEEPSEEK_API_KEY`
+
+Optionally support:
+
+`DEEPSEEK_MODEL=deepseek-chat`
+
+All authenticated DeepSeek requests must originate from a trusted server-side execution environment.
+
+If ChatGPT Sites supports server-side functions, secrets, and outbound API requests, use its native capabilities.
+
+If these capabilities are unavailable, preserve the complete frontend and implement a compatible external backend architecture.
+
+Never substitute hardcoded API keys or expose secrets in client-side code.
+
+Do not claim that live DeepSeek integration works until it has been verified.
+
+## 8. Backend API
+
+Implement two logical operations.
+
+### POST /api/query
+
+Input:
+
+```json
+{
+  "prompt": "User request"
+}
+```
+
+Behavior:
+
+- Validate the original prompt.
+- Execute two independent DeepSeek calls concurrently.
+- Return both responses and their individual execution times.
+- Preserve partial success.
+
+### POST /api/transfer
+
+Input:
+
+```json
+{
+  "prompt": "Original user request",
+  "sourceResponse": "Original response from source model",
+  "mode": "review",
+  "customPrompt": ""
+}
+```
+
+Behavior:
+
+- Validate request fields.
+- Select the corresponding processing instruction.
+- Send the request to the receiving model.
+- Return the processed answer and its execution time.
+
+Keep API implementation compatible with the native server framework supported by Sites.
+
+## 9. Application Behavior
+
+Implement the following functionality:
+
+- Asynchronous API communication.
+- Independent response loading indicators.
+- Response-time measurement.
+- Scrollable model response panels.
+- Markdown rendering with HTML sanitization.
+- Clear API error messages.
+- Input validation.
+- Responsive layout for desktop and mobile browsers.
+- Persistent original request and original model responses within the active page session.
+- Correct directional transfer.
+- Automatic expansion of the Custom Prompt input.
+- Prevention of accidental duplicate requests.
+- 1000-token output limit for every API completion.
+- No database requirement for the MVP.
+
+The application should not display fabricated model responses as if they were real API results.
+
+If the API connection is unavailable, clearly display a connection error in the affected panel.
+
+## 10. Public Deployment and Abuse Protection
+
+The application is intended for public demonstration.
+
+Implement reasonable protections against API abuse:
+
+- Server-side request-rate limiting.
+- Maximum user prompt length.
+- Maximum custom-prompt length.
+- API request timeout.
+- Safe error handling without secret leakage.
+- Request payload validation.
+- Prevention of uncontrolled repeated submissions.
+- Support for provider-side spending limits.
+
+Do not rely solely on browser-based restrictions.
+
+Prevent unnecessary API consumption when the request is empty or invalid.
+
+## 11. Responsive Design
+
+Optimize the initial layout for desktop screens.
+
+Desktop:
+- Two equal-width model response panels.
+- Horizontal mode selector.
+- Centered directional controls.
+- Full-width bottom User Request panel.
+
+Mobile:
+- Stack Model A and Model B panels vertically.
+- Allow mode controls to wrap.
+- Keep the directional buttons clearly labeled.
+- Maintain comfortable input and button sizes.
+- Avoid horizontal scrolling.
+
+Maintain the dark theme and green accents across screen sizes.
+
+## 12. Acceptance Criteria
+
+The MVP is complete when:
+
+1. The visual appearance closely matches the supplied reference image.
+2. Users can enter a request and click Send.
+3. Two independent DeepSeek API requests are executed concurrently.
+4. Model A and Model B display their respective responses.
+5. Both panels show accurate individual response times.
+6. Review performs cross-model review.
+7. Analysis performs cross-model analysis.
+8. Summary performs cross-model summarization.
+9. Custom Prompt accepts a user-defined instruction.
+10. Both directional arrows work correctly.
+11. Each API completion is limited to 1000 output tokens.
+12. The API key remains entirely server-side.
+13. The published application is usable through a normal browser.
+14. The interface does not reveal that both instances use the same model.
+15. Public access is protected with reasonable API usage controls.
+
+## 13. Implementation Priorities
+
+Prioritize, in this order:
+
+1. Visual fidelity to the reference image.
+2. Correct parallel DeepSeek API communication.
+3. Correct directional model interactions.
+4. Secure server-side API-key handling.
+5. Smooth interactions and clear loading states.
+6. Reliable public deployment.
+
+Avoid adding unnecessary features.
+
+Do not introduce user accounts, databases, chat history, file uploads, model selection menus, dashboards, or additional settings.
+
+Keep the UI minimal and faithful to the supplied design.
+
+## 14. Final Deliverable
+
+Build the complete AI Ping-Pong MVP in ChatGPT Sites.
+
+Provide a working application preview and prepare it for public publication.
+
+Use native Sites hosting and server-side facilities wherever supported.
+
+Expose the secure API-key configuration step to the project owner without requesting the key in a public chat or embedding it in client code.
+
+If any required server-side capability is unavailable in Sites, explicitly identify the limitation and implement the closest secure deployment-compatible architecture instead of silently replacing real API functionality with a mock.
+
+The application must look and behave like the provided AI Ping-Pong reference design.
