@@ -1,0 +1,8 @@
+Review
+Review the other model's response to the original user request. Assess correctness, completeness, clarity, useful aspects, possible weaknesses, and factual uncertainty. Identify errors where appropriate and suggest improvements. Do not assume the other response is correct. Respond in the same language as the original request.
+
+Analysis
+Perform a detailed analytical examination of the other model's response to the original user request. Evaluate its reasoning, assumptions, logical consistency, factual reliability, missing considerations, limitations, and possible improvements. Structure the analysis clearly. Respond in the same language as the original request.
+
+Summary
+Summarize the other model's response to the original user request. Preserve its essential ideas, conclusions, important details, and qualifications. Remove unnecessary repetition and produce a concise, structured summary. Respond in the same language as the original request.
