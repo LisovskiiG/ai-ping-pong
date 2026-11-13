@@ -1,0 +1,220 @@
+# 17 Benchmarks for Comparing Two LLMs
+
+Send only the **Prompt** for each benchmark to both models in separate, fresh chats with the same tool access. Score the first answer. Award **2 points** if all checks pass, **1 point** if the main result is correct with a minor omission or error, and **0 points** if the main result is wrong or missing. The maximum is **34 points**. For coding tasks, run the code. For poetry, the reference is one acceptable answer and alternatives are valid if they meet the stated requirements.
+
+The instructions are in English. Russian text is retained where it is test input, an expected program output, or part of a language-dependent puzzle or poem.
+
+## Mathematics
+
+### 1. Discount and Price Increase
+
+**Prompt**  
+An item originally cost 25,000 tenge. Its price was reduced by 20%, then the reduced price was increased by 10%. What is the final price? By what percentage does it differ from the original price? Show your calculation.
+
+**Test plan**  
+Check that the increase is applied to the reduced price and that the final percentage is calculated against the original price.
+
+**Reference answer**  
+After the discount, the price is 20,000 tenge. After the increase, it is 22,000 tenge. The final price is 3,000 tenge lower, a **12% decrease**.
+
+### 2. Two Ticket Prices
+
+**Prompt**  
+Twelve tickets were sold for either 3,000 or 2,000 tenge each. Total revenue was 31,000 tenge. How many tickets of each type were sold? Show how to check your answer.
+
+**Test plan**  
+Verify both the number of tickets and the total revenue.
+
+**Reference answer**  
+**7 tickets at 3,000 tenge** and **5 tickets at 2,000 tenge**. There are 12 tickets and the revenue is `7 × 3000 + 5 × 2000 = 31,000` tenge.
+
+### 3. Probability Without Replacement
+
+**Prompt**  
+A bag contains 4 black balls and 3 white balls. Two balls are drawn at random in succession without replacement. What is the probability that they have different colors? Give your answer as a reduced fraction and show your calculation.
+
+**Test plan**  
+Check that the model accounts for both possible draw orders and that the second draw is from six balls.
+
+**Reference answer**  
+`(4/7 × 3/6) + (3/7 × 4/6) = 4/7`.
+
+### 4. Codes Without Repeated Letters
+
+**Prompt**  
+How many three-letter codes can be made from A, B, C, and D if no letter can repeat, the code must start with A or B, and it must contain D? List all the codes.
+
+**Test plan**  
+Count the distinct codes and verify the starting letter, the presence of D, and the absence of repeated letters.
+
+**Reference answer**  
+**8 codes**. ABD, ACD, ADB, ADC, BAD, BCD, BDA, BDC. Any listing order is acceptable.
+
+### 5. Shortest Project Schedule
+
+**Prompt**  
+Task A takes 3 hours. After A finishes, task B (4 hours) and task C (2 hours) can run in parallel. Task D takes 3 hours and can begin only after both B and C finish. What is the earliest the project can finish? Give the start and finish times of each task relative to the start of the project.
+
+**Test plan**  
+Check that B and C can overlap and that D starts after the later of their finish times.
+
+**Reference answer**  
+**10 hours**. A runs from hour 0 to 3, B from 3 to 7, C from 3 to 5, and D from 7 to 10.
+
+## Vibe Coding
+
+### 6. Python Expense Summary
+
+**Prompt**  
+Write a Python function called `summarize_expenses(lines)`. Each line has the format `amount category`, for example `-1200 продукты`. The amount is a signed integer, and the category can contain spaces. Skip income, zero amounts, blank lines, and invalid lines. Return a dictionary of positive expense totals by category. Trim whitespace around category names and convert them to lowercase. Use only the standard library.
+
+**Test plan**  
+Run the function with the list below and then with an empty list. Check case normalization, multiword categories, and invalid input handling.
+
+```python
+["-1200 Продукты", " -300 продукты  ", "+5000 зарплата",
+ "-800 общественный транспорт", "-200", "-0 связь", "ошибка", ""]
+```
+
+**Reference answer**  
+The first call returns `{"продукты": 1500, "общественный транспорт": 800}`. The empty list returns `{}`.
+
+### 7. To-Do List With Browser Storage
+
+**Prompt**  
+Create a single HTML file containing a to-do list. Users must be able to add a task by clicking a button or pressing Enter, mark a task as complete, and delete it. Ignore empty input and input consisting only of whitespace. Save the list and completion states in `localStorage`. Allow tasks with identical text. Use plain HTML, CSS, and JavaScript with no external dependencies. Return the complete file.
+
+**Test plan**  
+Serve the file locally. Add “Buy coffee” using the button and add the same text using Enter. Mark the first task complete and refresh. Delete the second task and refresh again. Try submitting spaces only.
+
+**Reference answer**  
+Before deletion, the list contains two distinct tasks and only the first is complete. After deletion and refresh, one completed task remains. Submitting spaces does not add a task.
+
+### 8. Fixing Track Selection
+
+**Prompt**  
+Fix this Python function: `def pick_tracks(tracks): return sorted(tracks, key=lambda t: t["score"])[:3]`. Return up to three tracks with the highest `score`. Each `id` may appear only once. When an ID occurs more than once, keep a record with that ID's highest score. Break score ties by ascending `id`. Do not modify the input list. Return the function code.
+
+**Test plan**  
+Build a list of dictionaries from the input pairs below, with `id` and `score` keys. Check the order and selected records. Repeat with an empty list and a one-record list. Compare the input to a copy after the call.
+
+**Reference answer**  
+For input pairs `[(4, 9), (2, 9), (4, 11), (1, 5), (3, 9)]`, return the input dictionaries for **`(4, 11), (2, 9), (3, 9)`** in that order. An empty list returns `[]`, and a one-record list returns a list containing that record. The input is unchanged.
+
+### 9. Order Total Calculator
+
+**Prompt**  
+Create a single HTML file with an order calculator. The user enters a whole-number unit price in tenge of at least 0, a whole-number quantity of at least 1, and a whole-number discount from 0 to 100 percent. A button displays the discounted total rounded to the nearest whole tenge, with halves rounded up. For invalid or empty input, display an error and clear any previous result. Use no external libraries.
+
+**Test plan**  
+Check an ordinary purchase, rounding at an exact half, a 100% discount, and a zero unit price. After a successful calculation, try a fractional quantity, a 101% discount, and a blank required field.
+
+**Reference answer**  
+`1250 × 3` with a 10% discount returns **3375 ₸**. `101 × 1` with a 50% discount returns **51 ₸**. A zero unit price or a 100% discount returns **0 ₸**. A quantity of `1.5`, a 101% discount, or a blank required field displays an error and clears the previous total.
+
+### 10. Command-Line Note Search
+
+**Prompt**  
+Write a Python script named `find_notes.py` that runs as `python find_notes.py notes.txt query`. Read the file as UTF-8 and print every line containing the query, ignoring case. Use the format `number: text`, with line numbers starting at 1. Print matches in file order. If nothing matches, print `Нет совпадений`. If the file is missing, display a clear error and exit with a nonzero status. Use the standard library.
+
+**Test plan**  
+Create a three-line file containing `Кофе утром`, `Чай вечером`, and `Зёрна КОФЕ`, in that order. Run the script with `кофе` and `молоко`, then point it to a missing file.
+
+**Reference answer**  
+The query `кофе` prints:
+
+```text
+1: Кофе утром
+3: Зёрна КОФЕ
+```
+
+The query `молоко` prints `Нет совпадений`. A missing file produces an error message and a nonzero exit status.
+
+## Riddles and Word Puzzles
+
+### 11. The Wetter It Gets
+
+**Prompt**  
+What gets wetter while drying something else? Give your answer and explain it in one sentence.
+
+**Test plan**  
+Check that the explanation identifies where the moisture goes.
+
+**Reference answer**  
+**A towel**, because it absorbs water from what it dries. An equivalent answer that works by the same principle is acceptable.
+
+### 12. A Face on the Wall
+
+**Prompt**  
+What hangs on a wall, has two hands but no fingers, and has a round face but no eyes? Name the object and explain both clues.
+
+**Test plan**  
+Check that the answer connects the hands and the face to the object.
+
+**Reference answer**  
+**A round wall clock with two hands.** The hands indicate hours and minutes, and the face is the round dial.
+
+### 13. Three Mislabeled Boxes
+
+**Prompt**  
+One box contains only apples, one contains only pears, and one contains both. The boxes are labeled “Apples,” “Pears,” and “Mixed,” and all three labels are wrong. You may draw one fruit from one box. Which box should you choose, and how can you determine the contents of all three?
+
+**Test plan**  
+Check which box the model selects and verify the assignment for both possible fruits.
+
+**Reference answer**  
+Draw from **“Mixed.”** If you draw an apple, “Mixed” contains apples only, “Pears” contains both, and “Apples” contains pears only. If you draw a pear, “Mixed” contains pears only, “Apples” contains both, and “Pears” contains apples only.
+
+### 14. Letter Deletion and Reversal
+
+**Prompt**  
+Solve the puzzle `(СОН − Н) + reverse(ЛОК)`. The minus sign removes the specified letter, `reverse` puts the letters in reverse order, and the plus sign joins the parts from left to right. Show both intermediate parts and the resulting Russian word.
+
+**Test plan**  
+Check the deletion, reversal, and order of concatenation.
+
+**Reference answer**  
+`СОН − Н = СО`. Reversing `ЛОК` gives `КОЛ`. Joining the parts gives **СОКОЛ** (“falcon”).
+
+### 15. Letter Replacement With an Inconsistent Clue
+
+**Prompt**  
+Solve the puzzle `(ЛЕС: С → Д) + (ОКНО − last letter) + ОЛ`. Replace the specified letter in the first part, remove the final letter in the second part, and join all parts from left to right. Give the resulting word and explain what it means.
+
+**Test plan**  
+Check the intermediate parts. Verify that the model reports the literal result and identifies the inconsistency with the request for a meaningful word.
+
+**Reference answer**  
+The literal result is `ЛЕД + ОКН + ОЛ = ЛЕДОКНОЛ`, which is not a meaningful Russian word. Deleting the **last two** letters of `ОКНО` instead gives `ЛЕД + ОК + ОЛ = ЛЕДОКОЛ` (“icebreaker”). Full credit requires identifying the discrepancy.
+
+## Short Quatrains
+
+### 16. A Café After the Rain
+
+**Prompt**  
+Write exactly four lines in Russian about a café after the rain. Mention a cup and a wet street. Use an ABAB rhyme scheme, so the first line rhymes with the third and the second with the fourth. Return only the poem, with no title or explanation.
+
+**Test plan**  
+Count the lines, check both required images, and read the endings aloud to verify the rhyme scheme.
+
+**Reference answer**
+
+> На мокрой улице темнеет сад,  
+> В кофейне светло, за стеклом темно.  
+> Дождь стих, должно быть, полчаса назад,  
+> Я ставлю чашку и смотрю в окно.
+
+### 17. The Acrostic УТРО
+
+**Prompt**  
+Write a Russian quatrain about a city at dawn. Start the four lines with the Cyrillic letters У, Т, Р, and О, in that order. Mention a tram. Use an AABB rhyme scheme, so the first line rhymes with the second and the third with the fourth. Do not add a title.
+
+**Test plan**  
+Read the initial letters vertically, check that a tram appears, and verify both rhyme pairs.
+
+**Reference answer**
+
+> У остановки тает синий мрак,  
+> Трамвай звенит — и утро подаёт знак.  
+> Рассвет ложится золотом на крыши,  
+> Обычный гул машин покуда тише.
